@@ -170,11 +170,15 @@
       display: flex;
       flex-direction: column;
       gap: 1.5rem;
-      animation: slideUp 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+      /* Always occupies layout space so the game area never shifts */
+      visibility: hidden;
+      pointer-events: none;
     }
 
-    #result-section.hidden {
-      display: none;
+    #result-section:not(.hidden) {
+      visibility: visible;
+      pointer-events: auto;
+      animation: slideUp 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) both;
     }
 
     /* ===== GAME AREA — shared background for building + wheel ===== */
@@ -437,9 +441,9 @@
     }
 
     @keyframes rocketMiss {
-      0%   { transform: translateX(0px)                              translateY(0px)    rotate(-90deg); opacity: 1; }
-      50%  { transform: translateX(var(--travel-x))                  translateY(0px)    rotate(-90deg); opacity: 1; }
-      100% { transform: translateX(calc(var(--travel-x) - 400px))    translateY(-300px) rotate(0deg);   opacity: 0; }
+      0%   { transform: translateX(0px)                              translateY(0px)           rotate(-90deg); opacity: 1; }
+      50%  { transform: translateX(var(--travel-x))                  translateY(0px)           rotate(-90deg); opacity: 1; }
+      100% { transform: translateX(calc(var(--travel-x) - 400px))    translateY(var(--miss-y)) rotate(0deg);   opacity: 0; }
     }
 
     @keyframes explodeBurst {
@@ -1001,6 +1005,11 @@
         el.style.setProperty('--y-offset', `${yOffsets[i]}px`);
         el.style.setProperty('--duration', `${dur}s`);
         el.style.setProperty('--travel-x', `${leftwardDistance}px`);
+        if (!hit) {
+          /* Each miss rocket randomly veers up or down to avoid the building */
+          const missY = (Math.random() < 0.5 ? -1 : 1) * 300;
+          el.style.setProperty('--miss-y', `${missY}px`);
+        }
         container.appendChild(el);
 
         if (hit) {
