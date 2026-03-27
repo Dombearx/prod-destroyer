@@ -442,9 +442,9 @@
     }
 
     @keyframes rocketMiss {
-      0%   { transform: translateX(0px)                              translateY(0px)           rotate(-90deg); opacity: 1; }
-      50%  { transform: translateX(var(--travel-x))                  translateY(0px)           rotate(-90deg); opacity: 1; }
-      100% { transform: translateX(calc(var(--travel-x) - 400px))    translateY(var(--miss-y)) rotate(0deg);   opacity: 0; }
+      0%   { transform: translateX(0px)                        translateY(0px)           rotate(-90deg); opacity: 1; }
+      67%  { transform: translateX(var(--travel-x-waypoint))   translateY(0px)           rotate(-90deg); opacity: 1; }
+      100% { transform: translateX(var(--travel-x-waypoint))   translateY(var(--miss-y)) rotate(0deg);   opacity: 0; }
     }
 
     @keyframes explodeBurst {
@@ -692,6 +692,10 @@
     let isSpinning      = false;
     let firstSpinDone   = false;
     let hitCount        = 0;   // number of rocket hits; resets on page refresh
+    let buildingCollapsed = false; // true after 5 hits — wheel is permanently disabled
+
+    const DAMAGE_THRESHOLD = 5;          // hits required to collapse the building
+    const ROCKET_WAYPOINT_RATIO = 2 / 3; // fraction of travel distance at which miss rockets veer
 
     /* ===================================================================
        BUILDING GEOMETRY CONSTANTS
@@ -855,7 +859,7 @@
        SPIN
     =================================================================== */
     function spin() {
-      if (isSpinning) return;
+      if (isSpinning || buildingCollapsed) return;
 
       const teamIndex    = selectTeam();
       const finalRotation = getTargetRotation(teamIndex);
@@ -1007,7 +1011,9 @@
         el.style.setProperty('--duration', `${dur}s`);
         el.style.setProperty('--travel-x', `${leftwardDistance}px`);
         if (!hit) {
-          /* Each miss rocket randomly veers up or down to avoid the building */
+          /* Rocket travels to ROCKET_WAYPOINT_RATIO of the distance then veers up or down */
+          const waypointX = leftwardDistance * ROCKET_WAYPOINT_RATIO;
+          el.style.setProperty('--travel-x-waypoint', `${waypointX}px`);
           const missY = (Math.random() < 0.5 ? -1 : 1) * 300;
           el.style.setProperty('--miss-y', `${missY}px`);
         }
@@ -1064,17 +1070,31 @@
 
       applyDamage();
 
-      if (reducedMotion) return;
-
-      /* Position explosion near where the first rocket hit */
-      if (impactBottom !== undefined) {
-        const EXPLOSION_MIN_BOTTOM  = 20;   // floor to avoid clipping at stage edge
-        const EXPLOSION_Y_OFFSET    = 10;   // shift down slightly from rocket centre
-        const EXPLOSION_BASE_LEFT   = 50;   // leftmost x within building area
-        const EXPLOSION_LEFT_JITTER = 40;   // random spread
+      /* ---- Position explosion near where the first rocket hit ---- */
+      if (!reducedMotion && impactBottom !== undefined) {
+        const EXPLOSION_MIN_BOTTOM  = 20;
+        const EXPLOSION_Y_OFFSET    = 10;
+        const EXPLOSION_BASE_LEFT   = 50;
+        const EXPLOSION_LEFT_JITTER = 40;
         explosionLayer.style.bottom = `${Math.max(EXPLOSION_MIN_BOTTOM, impactBottom - EXPLOSION_Y_OFFSET)}px`;
         explosionLayer.style.left   = `${EXPLOSION_BASE_LEFT + Math.random() * EXPLOSION_LEFT_JITTER}px`;
       }
+
+      /* ---- Final hit: collapse the building ---- */
+      if (hitCount >= DAMAGE_THRESHOLD) {
+        buildingCollapsed = true;
+        canvas.setAttribute('aria-disabled', 'true');
+        document.getElementById('spin-hint').textContent = '💥 PROD is down! Refresh to rebuild.';
+
+        if (!reducedMotion) {
+          explosionLayer.style.display = 'block';
+          explosionLayer.classList.add('exploding');
+          building.classList.add('building-collapsing');
+        }
+        return;
+      }
+
+      if (reducedMotion) return;
 
       /* Show explosion at the building the moment the rocket hits */
       explosionLayer.style.display = 'block';
