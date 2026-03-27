@@ -216,8 +216,7 @@
     #building-wrapper {
       position: absolute;
       bottom: 28px;
-      left: 50%;
-      transform: translateX(-50%);
+      left: 20px;
       z-index: 4;
       display: flex;
       flex-direction: column;
@@ -229,7 +228,7 @@
       flex-direction: column;
       align-items: center;
       transform-origin: bottom center;
-      transition: filter 0.3s;
+      transition: filter 0.5s, transform 0.5s;
     }
 
     .building-sign {
@@ -281,9 +280,9 @@
     /* ===== EXPLOSION LAYER ===== */
     #explosion-layer {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
+      bottom: 78px;
+      left: 70px;
+      transform: translate(-50%, 50%) scale(0);
       font-size: 6rem;
       z-index: 10;
       pointer-events: none;
@@ -310,8 +309,8 @@
       font-size: 2.2rem;
       line-height: 1;
       bottom: 60px;
-      left: -70px;
-      transform: rotate(45deg);
+      right: -70px;
+      transform: rotate(-45deg);
     }
 
     .rocket.hit {
@@ -361,36 +360,6 @@
     }
 
     #wizard-message.hidden { display: none; }
-
-    #spin-again-btn {
-      margin-top: 0.4rem;
-      padding: 0.8rem 2.2rem;
-      font-size: 1rem;
-      font-weight: 800;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #ff6b6b, #ffd93d);
-      color: #12122a;
-      cursor: pointer;
-      transition: transform 0.12s, box-shadow 0.2s;
-      box-shadow: 0 4px 24px rgba(255,107,107,0.35);
-      letter-spacing: 0.03em;
-      animation: fadeInUp 0.4s ease-out 0.6s both;
-    }
-
-    #spin-again-btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 32px rgba(255,107,107,0.55);
-    }
-
-    #spin-again-btn:active { transform: translateY(0); }
-
-    #spin-again-btn:focus-visible {
-      outline: 3px solid var(--gold);
-      outline-offset: 4px;
-    }
-
-    #spin-again-btn.hidden { display: none; }
 
     /* ===== FOOTER ===== */
     footer {
@@ -446,21 +415,21 @@
     }
 
     @keyframes rocketHit {
-      0%   { transform: translateX(0px)   translateY(var(--y-offset, 0px)) rotate(45deg) scale(1);   opacity: 1; }
-      85%  { transform: translateX(600px) translateY(var(--y-offset, 0px)) rotate(45deg) scale(1.1); opacity: 1; }
-      100% { transform: translateX(620px) translateY(var(--y-offset, 0px)) rotate(45deg) scale(0);   opacity: 0; }
+      0%   { transform: translateX(0px)                     translateY(var(--y-offset, 0px)) rotate(-45deg) scale(1);   opacity: 1; }
+      85%  { transform: translateX(var(--travel-x, -800px)) translateY(var(--y-offset, 0px)) rotate(-45deg) scale(1.1); opacity: 1; }
+      100% { transform: translateX(var(--travel-x, -800px)) translateY(var(--y-offset, 0px)) rotate(-45deg) scale(0);   opacity: 0; }
     }
 
     @keyframes rocketMiss {
-      0%   { transform: translateX(0px)   translateY(0px)    rotate(45deg); opacity: 1; }
-      55%  { transform: translateX(500px) translateY(0px)    rotate(45deg); opacity: 1; }
-      100% { transform: translateX(750px) translateY(-160px) rotate(10deg); opacity: 0; }
+      0%   { transform: translateX(0px)    translateY(0px)    rotate(-45deg); opacity: 1; }
+      55%  { transform: translateX(-500px) translateY(0px)    rotate(-45deg); opacity: 1; }
+      100% { transform: translateX(-900px) translateY(-160px) rotate(-80deg); opacity: 0; }
     }
 
     @keyframes explodeBurst {
-      0%   { transform: translate(-50%,-50%) scale(0);   opacity: 1; }
-      35%  { transform: translate(-50%,-50%) scale(2.2); opacity: 1; }
-      100% { transform: translate(-50%,-50%) scale(5);   opacity: 0; }
+      0%   { transform: translate(-50%, 50%) scale(0);   opacity: 1; }
+      35%  { transform: translate(-50%, 50%) scale(2.2); opacity: 1; }
+      100% { transform: translate(-50%, 50%) scale(5);   opacity: 0; }
     }
 
     @keyframes buildingShake {
@@ -485,6 +454,13 @@
     .building-shaking   { animation: buildingShake 0.45s ease-in-out 3; }
     .building-collapsing { animation: buildingCollapse 0.85s ease-in forwards; }
 
+    /* ===== PROGRESSIVE DAMAGE ===== */
+    #building-wrapper[data-damage="1"] #building { filter: brightness(0.88); }
+    #building-wrapper[data-damage="2"] #building { filter: brightness(0.75); transform: rotate(-0.5deg); }
+    #building-wrapper[data-damage="3"] #building { filter: brightness(0.6);  transform: rotate(-1deg); }
+    #building-wrapper[data-damage="4"] #building { filter: brightness(0.45); transform: rotate(-2deg); }
+    #building-wrapper[data-damage="5"] #building { filter: brightness(0.3) sepia(0.3); transform: rotate(-3deg) scaleX(0.97); }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 500px) {
       #wheel-wrapper { width: 310px; height: 310px; }
@@ -503,7 +479,7 @@
       #explosion-layer.exploding,
       .building-shaking, .building-collapsing,
       #result-section, #team-badge, #result-message,
-      #wizard-message, #spin-again-btn {
+      #wizard-message {
         animation-duration: 1ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 1ms !important;
@@ -519,6 +495,32 @@
   </header>
 
   <main>
+    <!-- ANIMATION STAGE — always visible, building on the left, rockets from the right -->
+    <div id="animation-stage">
+      <!-- Building -->
+      <div id="building-wrapper">
+        <div id="building">
+          <div class="building-sign">PROD</div>
+          <div class="building-body">
+            <div class="window lit"></div>
+            <div class="window"></div>
+            <div class="window lit"></div>
+            <div class="window lit"></div>
+            <div class="window"></div>
+            <div class="window lit"></div>
+            <div class="window"></div>
+            <div class="window lit"></div>
+            <div class="window"></div>
+          </div>
+          <div class="building-base"></div>
+        </div>
+      </div>
+      <!-- Explosion positioned at building location -->
+      <div id="explosion-layer" aria-hidden="true">💥</div>
+      <!-- Rockets fly in here -->
+      <div id="rockets-container" aria-hidden="true"></div>
+    </div>
+
     <!-- WHEEL -->
     <section id="wheel-section">
       <div id="wheel-wrapper">
@@ -535,43 +537,17 @@
       <p id="spin-hint">Click the wheel or press Space to spin!</p>
     </section>
 
-    <!-- RESULT -->
+    <!-- RESULT — shown after spin -->
     <section
       id="result-section"
       class="hidden"
       aria-live="polite"
       aria-atomic="true"
     >
-      <div id="animation-stage">
-        <!-- Building -->
-        <div id="building-wrapper">
-          <div id="building">
-            <div class="building-sign">PROD</div>
-            <div class="building-body">
-              <div class="window lit"></div>
-              <div class="window"></div>
-              <div class="window lit"></div>
-              <div class="window lit"></div>
-              <div class="window"></div>
-              <div class="window lit"></div>
-              <div class="window"></div>
-              <div class="window lit"></div>
-              <div class="window"></div>
-            </div>
-            <div class="building-base"></div>
-          </div>
-        </div>
-        <!-- Explosion -->
-        <div id="explosion-layer" aria-hidden="true">💥</div>
-        <!-- Rockets fly in here -->
-        <div id="rockets-container" aria-hidden="true"></div>
-      </div>
-
       <div id="result-content">
         <div id="team-badge"></div>
         <p id="result-message"></p>
         <p id="wizard-message" class="hidden">🧙 Ai would never do that</p>
-        <button id="spin-again-btn" class="hidden">Spin Again 🎲</button>
       </div>
     </section>
   </main>
@@ -616,6 +592,7 @@
     let currentRotation = 0;   // degrees, cumulative (always increases)
     let isSpinning      = false;
     let firstSpinDone   = false;
+    let hitCount        = 0;   // number of rocket hits; resets on page refresh
 
     /* ===================================================================
        CANVAS SETUP
@@ -747,7 +724,7 @@
     const BASE_ROT = [0, 240, 120];   // degrees per team index
 
     function selectTeam() {
-      const eligible = firstSpinDone ? [0, 1] : [0, 1, 2];
+      const eligible = firstSpinDone ? [0, 1, 2] : [0, 1];
       return eligible[Math.floor(Math.random() * eligible.length)];
     }
 
@@ -828,20 +805,17 @@
       const displayName = team.displayName || team.name;
       const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      /* --- Reset stage --- */
+      /* --- Reset stage (preserve damage state on building-wrapper) --- */
       const building      = document.getElementById('building');
       const explosionLayer = document.getElementById('explosion-layer');
       const rocketsCont   = document.getElementById('rockets-container');
       const wizMsg        = document.getElementById('wizard-message');
-      const spinAgainBtn  = document.getElementById('spin-again-btn');
 
       building.className = '';
-      building.style.cssText = '';
       explosionLayer.className = '';
       explosionLayer.style.display = 'none';
       rocketsCont.innerHTML = '';
       wizMsg.classList.add('hidden');
-      spinAgainBtn.classList.add('hidden');
 
       /* --- Badge & message --- */
       const badge = document.getElementById('team-badge');
@@ -856,21 +830,21 @@
       resultSection.classList.remove('hidden');
 
       /* --- Trigger animations --- */
+      const ROCKET_DURATION = reducedMotion ? 0.4 : 1.3;
+
       if (team.isWizards) {
         /* Rockets launch and miss */
         launchRockets(false, reducedMotion);
         setTimeout(() => {
           wizMsg.classList.remove('hidden');
-          spinAgainBtn.classList.remove('hidden');
-        }, reducedMotion ? 50 : 2800);
+        }, reducedMotion ? 50 : 2200);
       } else {
-        /* Rockets hit → shake → explode */
+        /* Rockets fly from right → hit building → explode + damage */
         launchRockets(true, reducedMotion);
+        const HIT_TIME = reducedMotion ? 50 : Math.round(ROCKET_DURATION * 0.85 * 1000);
         setTimeout(() => {
-          shakeAndExplode(reducedMotion, () => {
-            spinAgainBtn.classList.remove('hidden');
-          });
-        }, reducedMotion ? 50 : 1800);
+          shakeAndExplode(reducedMotion);
+        }, HIT_TIME);
       }
     }
 
@@ -879,7 +853,11 @@
     =================================================================== */
     function launchRockets(hit, reducedMotion) {
       const container = document.getElementById('rockets-container');
+      const stage     = document.getElementById('animation-stage');
       container.innerHTML = '';
+
+      /* Travel from right:-70px to building centre (~70px from left) = stage width */
+      const leftwardDistance = -(stage.offsetWidth);
 
       const delays  = [0, 0.32, 0.64];
       const yOffset = [-38, 0, 38];
@@ -892,45 +870,55 @@
         el.style.setProperty('--delay',    `${delay}s`);
         el.style.setProperty('--y-offset', `${yOffset[i]}px`);
         el.style.setProperty('--duration', `${dur}s`);
-        el.style.animationDuration = `${dur}s`;
-        el.style.animationDelay    = `${delay}s`;
+        el.style.setProperty('--travel-x', `${leftwardDistance}px`);
         container.appendChild(el);
       });
     }
 
     /* ===================================================================
-       SHAKE + EXPLODE
+       APPLY PROGRESSIVE DAMAGE
     =================================================================== */
-    function shakeAndExplode(reducedMotion, onDone) {
+    function applyDamage() {
+      hitCount++;
+      const buildingWrapper = document.getElementById('building-wrapper');
+      buildingWrapper.dataset.damage = hitCount;
+
+      /* Turn off one lit window per hit */
+      const litWindows = document.querySelectorAll('#building .window.lit');
+      if (litWindows.length > 0) {
+        litWindows[litWindows.length - 1].classList.remove('lit');
+      }
+    }
+
+    /* ===================================================================
+       SHAKE + EXPLODE (no collapse — building stays and accumulates damage)
+    =================================================================== */
+    function shakeAndExplode(reducedMotion) {
       const building     = document.getElementById('building');
       const explosionLayer = document.getElementById('explosion-layer');
 
-      if (reducedMotion) {
-        onDone && onDone();
-        return;
-      }
+      applyDamage();
 
+      if (reducedMotion) return;
+
+      /* Show explosion at the building the moment the rocket hits */
+      explosionLayer.style.display = 'block';
+      explosionLayer.classList.add('exploding');
+
+      /* Shake the building */
       building.classList.add('building-shaking');
-      const SHAKE_MS = 450 * 3 + 100;   // 3 iterations × 450ms + buffer
 
+      /* Clean up shake after 3 iterations */
+      const SHAKE_MS = 450 * 3 + 100;
       setTimeout(() => {
         building.classList.remove('building-shaking');
-        building.classList.add('building-collapsing');
-
-        explosionLayer.style.display = 'block';
-        explosionLayer.classList.add('exploding');
-
-        setTimeout(() => {
-          onDone && onDone();
-          // Reset building so next spin looks right
-          setTimeout(() => {
-            building.classList.remove('building-collapsing');
-            building.style.cssText = '';
-            explosionLayer.classList.remove('exploding');
-            explosionLayer.style.display = 'none';
-          }, 1600);
-        }, 900);
       }, SHAKE_MS);
+
+      /* Clean up explosion after animation completes */
+      setTimeout(() => {
+        explosionLayer.classList.remove('exploding');
+        explosionLayer.style.display = 'none';
+      }, 950);
     }
 
     /* ===================================================================
@@ -944,8 +932,6 @@
         spin();
       }
     });
-
-    document.getElementById('spin-again-btn').addEventListener('click', spin);
 
     /* ===================================================================
        INITIALISE
