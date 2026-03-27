@@ -493,12 +493,21 @@
 
     /* ===== REDUCED MOTION ===== */
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
+      /* Disable decorative looping animations entirely */
+      #pointer, h1, #wheel-wrapper::before,
+      .window.lit { animation: none !important; }
+
+      /* Collapse functional one-shot animations to a single instant frame
+         so result states still appear, just without motion */
+      .rocket.hit, .rocket.miss,
+      #explosion-layer.exploding,
+      .building-shaking, .building-collapsing,
+      #result-section, #team-badge, #result-message,
+      #wizard-message, #spin-again-btn {
+        animation-duration: 1ms !important;
         animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+        transition-duration: 1ms !important;
       }
-      #pointer, h1, #wheel-wrapper::before { animation: none; }
     }
   </style>
 </head>
@@ -743,7 +752,8 @@
     }
 
     function getTargetRotation(teamIndex) {
-      // Add ±38° jitter (well within the ±60° half-segment)
+      // Add ±38° jitter (= 0.5 × 76) — stays well within the ±60° half-segment
+      // boundary, so the pointer still lands on the correct team slice.
       const jitter   = (Math.random() - 0.5) * 76;
       const targetMod = ((BASE_ROT[teamIndex] + jitter) % 360 + 360) % 360;
 
