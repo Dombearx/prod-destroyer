@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Who Will Break Prod Next 🚀💥</title>
+  <style>
+    /* ===== RESET ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ===== VARIABLES ===== */
+    :root {
+      --bg: #0a0a18;
+      --surface: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.1);
+      --text: #f0f0f8;
+      --muted: #7a7a9a;
+      --gold: #ffd93d;
+      --voyagers: #ff6b6b;
+      --stable-fusion: #4ecdc4;
+      --wizards: #a78bfa;
+      --spin-duration: 4.5s;
+    }
+
+    /* ===== BODY ===== */
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% 0%,  rgba(167,139,250,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,107,107,0.10) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 50% at 50% 50%,  rgba(78,205,196,0.06) 0%, transparent 70%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 1rem 2rem;
+      overflow-x: hidden;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      text-align: center;
+      padding: 2.5rem 1rem 1.5rem;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 5vw, 3rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      background: linear-gradient(135deg, #ff6b6b 0%, #ffd93d 40%, #6bcb77 70%, #4d96ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titlePulse 5s ease-in-out infinite;
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-style: italic;
+      letter-spacing: 0.01em;
+    }
+
+    /* ===== MAIN ===== */
+    main {
+      width: 100%;
+      max-width: 820px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+    }
+
+    /* ===== WHEEL SECTION ===== */
+    #wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    #wheel-wrapper {
+      position: relative;
+      width: 420px;
+      height: 420px;
+    }
+
+    /* Glow ring behind wheel */
+    #wheel-wrapper::before {
+      content: '';
+      position: absolute;
+      inset: -10px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #ff6b6b33, #ffd93d33, #4ecdc433, #a78bfa33, #ff6b6b33);
+      filter: blur(16px);
+      animation: glowRotate 8s linear infinite;
+      pointer-events: none;
+    }
+
+    #pointer {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.2rem;
+      line-height: 1;
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(255,217,61,0.9), 0 0 28px rgba(255,217,61,0.4);
+      z-index: 5;
+      pointer-events: none;
+      animation: pointerBounce 1.8s ease-in-out infinite;
+    }
+
+    #wheel {
+      display: block;
+      border-radius: 50%;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      box-shadow:
+        0 0 0 5px rgba(255,255,255,0.12),
+        0 0 0 8px rgba(255,255,255,0.05),
+        0 0 50px rgba(255,107,107,0.25),
+        0 25px 80px rgba(0,0,0,0.6);
+      transition: box-shadow 0.3s ease;
+    }
+
+    #wheel:hover:not([aria-disabled="true"]) {
+      box-shadow:
+        0 0 0 5px rgba(255,255,255,0.22),
+        0 0 0 8px rgba(255,255,255,0.08),
+        0 0 70px rgba(255,107,107,0.45),
+        0 25px 80px rgba(0,0,0,0.6);
+    }
+
+    #wheel:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 8px;
+    }
+
+    #wheel[aria-disabled="true"] {
+      cursor: wait;
+    }
+
+    #spin-hint {
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+      min-height: 1.3em;
+      transition: color 0.3s;
+    }
+
+    /* ===== RESULT SECTION ===== */
+    #result-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      animation: slideUp 0.5s cubic-bezier(0.34, 1.2, 0.64, 1) both;
+    }
+
+    #result-section.hidden {
+      display: none;
+    }
+
+    /* ===== ANIMATION STAGE ===== */
+    #animation-stage {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background:
+        linear-gradient(to bottom,
+          #080814 0%,
+          #0d0d20 50%,
+          #0a1808 100%);
+    }
+
+    /* Stars in stage */
+    #animation-stage::before {
+      content: '· · ✦ · ✦ · · ✦ · · ✦ ·';
+      position: absolute;
+      top: 10px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: rgba(255,255,255,0.15);
+      font-size: 0.7rem;
+      letter-spacing: 6px;
+      pointer-events: none;
+    }
+
+    /* Ground */
+    #animation-stage::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 28px;
+      background: linear-gradient(to top, rgba(20,60,20,0.9), transparent);
+      pointer-events: none;
+    }
+
+    /* ===== BUILDING ===== */
+    #building-wrapper {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #building {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transform-origin: bottom center;
+      transition: filter 0.3s;
+    }
+
+    .building-sign {
+      background: linear-gradient(135deg, #1c1c3a, #2a2a52);
+      border: 2px solid rgba(255,107,107,0.4);
+      border-bottom: none;
+      border-radius: 6px 6px 0 0;
+      padding: 5px 14px;
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      color: #ff6b6b;
+      text-shadow: 0 0 8px rgba(255,107,107,0.7);
+    }
+
+    .building-body {
+      width: 88px;
+      background: linear-gradient(160deg, #24244a, #1a1a36);
+      border: 2px solid rgba(255,255,255,0.18);
+      border-bottom: none;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5px;
+      padding: 8px 7px;
+    }
+
+    .window {
+      height: 13px;
+      border-radius: 2px;
+      background: rgba(255,217,61,0.08);
+      border: 1px solid rgba(255,217,61,0.2);
+    }
+
+    .window.lit {
+      background: rgba(255,217,61,0.75);
+      border-color: rgba(255,217,61,0.9);
+      box-shadow: 0 0 6px rgba(255,217,61,0.5), inset 0 0 4px rgba(255,255,255,0.3);
+      animation: windowFlicker 3s ease-in-out infinite;
+    }
+
+    .building-base {
+      width: 100px;
+      height: 12px;
+      background: linear-gradient(to top, #2a2a4a, #1c1c34);
+      border: 2px solid rgba(255,255,255,0.15);
+      border-top: none;
+    }
+
+    /* ===== EXPLOSION LAYER ===== */
+    #explosion-layer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      font-size: 6rem;
+      z-index: 10;
+      pointer-events: none;
+      display: none;
+      line-height: 1;
+      filter: drop-shadow(0 0 20px rgba(255,107,61,0.9));
+    }
+
+    #explosion-layer.exploding {
+      display: block;
+      animation: explodeBurst 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    }
+
+    /* ===== ROCKETS ===== */
+    #rockets-container {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 6;
+    }
+
+    .rocket {
+      position: absolute;
+      font-size: 2.2rem;
+      line-height: 1;
+      bottom: 60px;
+      left: -70px;
+      transform: rotate(45deg);
+    }
+
+    .rocket.hit {
+      animation: rocketHit var(--duration, 1.2s) ease-in var(--delay, 0s) forwards;
+    }
+
+    .rocket.miss {
+      animation: rocketMiss var(--duration, 1.6s) ease-in var(--delay, 0s) forwards;
+    }
+
+    /* ===== RESULT CONTENT ===== */
+    #result-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+      text-align: center;
+    }
+
+    #team-badge {
+      display: inline-block;
+      padding: 0.45rem 1.8rem;
+      border-radius: 999px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #fff;
+      animation: badgePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s both;
+    }
+
+    #result-message {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      opacity: 0.9;
+      animation: fadeInUp 0.4s ease-out 0.4s both;
+    }
+
+    #wizard-message {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: var(--wizards);
+      text-shadow: 0 0 24px rgba(167,139,250,0.7), 0 0 50px rgba(167,139,250,0.3);
+      letter-spacing: 0.04em;
+      animation: wizardReveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+
+    #wizard-message.hidden { display: none; }
+
+    #spin-again-btn {
+      margin-top: 0.4rem;
+      padding: 0.8rem 2.2rem;
+      font-size: 1rem;
+      font-weight: 800;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+      color: #12122a;
+      cursor: pointer;
+      transition: transform 0.12s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px rgba(255,107,107,0.35);
+      letter-spacing: 0.03em;
+      animation: fadeInUp 0.4s ease-out 0.6s both;
+    }
+
+    #spin-again-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(255,107,107,0.55);
+    }
+
+    #spin-again-btn:active { transform: translateY(0); }
+
+    #spin-again-btn:focus-visible {
+      outline: 3px solid var(--gold);
+      outline-offset: 4px;
+    }
+
+    #spin-again-btn.hidden { display: none; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      margin-top: auto;
+      padding: 2rem 1rem 1rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-align: center;
+      opacity: 0.7;
+    }
+
+    /* ===== KEYFRAME ANIMATIONS ===== */
+    @keyframes titlePulse {
+      0%, 100% { filter: drop-shadow(0 0 12px rgba(255,107,107,0.3)); }
+      50%       { filter: drop-shadow(0 0 24px rgba(255,217,61,0.5)); }
+    }
+
+    @keyframes glowRotate {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pointerBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(-6px); }
+    }
+
+    @keyframes windowFlicker {
+      0%, 90%, 100% { opacity: 1; }
+      92%            { opacity: 0.4; }
+      94%            { opacity: 1; }
+      96%            { opacity: 0.2; }
+      98%            { opacity: 0.9; }
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes badgePop {
+      from { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes wizardReveal {
+      from { opacity: 0; transform: scale(0.2) rotate(-15deg); }
+      to   { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+
+    @keyframes rocketHit {
+      0%   { transform: translateX(0px)   translateY(var(--y-offset, 0px)) rotate(45deg) scale(1);   opacity: 1; }
+      85%  { transform: translateX(600px) translateY(var(--y-offset, 0px)) rotate(45deg) scale(1.1); opacity: 1; }
+      100% { transform: translateX(620px) translateY(var(--y-offset, 0px)) rotate(45deg) scale(0);   opacity: 0; }
+    }
+
+    @keyframes rocketMiss {
+      0%   { transform: translateX(0px)   translateY(0px)    rotate(45deg); opacity: 1; }
+      55%  { transform: translateX(500px) translateY(0px)    rotate(45deg); opacity: 1; }
+      100% { transform: translateX(750px) translateY(-160px) rotate(10deg); opacity: 0; }
+    }
+
+    @keyframes explodeBurst {
+      0%   { transform: translate(-50%,-50%) scale(0);   opacity: 1; }
+      35%  { transform: translate(-50%,-50%) scale(2.2); opacity: 1; }
+      100% { transform: translate(-50%,-50%) scale(5);   opacity: 0; }
+    }
+
+    @keyframes buildingShake {
+      0%,100% { transform: translateX(0) rotate(0); }
+      12%     { transform: translateX(-7px) rotate(-2deg); }
+      25%     { transform: translateX(7px)  rotate(2deg); }
+      37%     { transform: translateX(-5px) rotate(-1deg); }
+      50%     { transform: translateX(5px)  rotate(1deg); }
+      62%     { transform: translateX(-3px) rotate(-0.5deg); }
+      75%     { transform: translateX(3px)  rotate(0.5deg); }
+      87%     { transform: translateX(-1px) rotate(0); }
+    }
+
+    @keyframes buildingCollapse {
+      0%   { transform: scale(1)    rotate(0)     translateY(0);   opacity: 1; filter: brightness(1); }
+      20%  { transform: scale(1.06) rotate(-2deg) translateY(-4px); opacity: 1; filter: brightness(2) saturate(2); }
+      55%  { transform: scale(0.9)  rotate(4deg)  translateY(10px); opacity: 0.8; filter: brightness(1.5) hue-rotate(20deg); }
+      80%  { transform: scale(0.65) rotate(-6deg) translateY(30px); opacity: 0.4; }
+      100% { transform: scale(0)    rotate(10deg) translateY(60px); opacity: 0; }
+    }
+
+    .building-shaking   { animation: buildingShake 0.45s ease-in-out 3; }
+    .building-collapsing { animation: buildingCollapse 0.85s ease-in forwards; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 500px) {
+      #wheel-wrapper { width: 310px; height: 310px; }
+      #animation-stage { height: 170px; }
+    }
+
+    /* ===== REDUCED MOTION ===== */
+    @media (prefers-reduced-motion: reduce) {
+      /* Disable decorative looping animations entirely */
+      #pointer, h1, #wheel-wrapper::before,
+      .window.lit { animation: none !important; }
+
+      /* Collapse functional one-shot animations to a single instant frame
+         so result states still appear, just without motion */
+      .rocket.hit, .rocket.miss,
+      #explosion-layer.exploding,
+      .building-shaking, .building-collapsing,
+      #result-section, #team-badge, #result-message,
+      #wizard-message, #spin-again-btn {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 1ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🚀 Who Will Break Prod Next 💥</h1>
+    <p class="subtitle">A scientifically rigorous incident predictor</p>
+  </header>
+
+  <main>
+    <!-- WHEEL -->
+    <section id="wheel-section">
+      <div id="wheel-wrapper">
+        <div id="pointer" aria-hidden="true">▼</div>
+        <canvas
+          id="wheel"
+          width="420"
+          height="420"
+          role="button"
+          tabindex="0"
+          aria-label="Spin the wheel to find out who will break prod next. Press Space or Enter to spin."
+        ></canvas>
+      </div>
+      <p id="spin-hint">Click the wheel or press Space to spin!</p>
+    </section>
+
+    <!-- RESULT -->
+    <section
+      id="result-section"
+      class="hidden"
+      aria-live="polite"
+      aria-atomic="true"
+    >
+      <div id="animation-stage">
+        <!-- Building -->
+        <div id="building-wrapper">
+          <div id="building">
+            <div class="building-sign">PROD</div>
+            <div class="building-body">
+              <div class="window lit"></div>
+              <div class="window"></div>
+              <div class="window lit"></div>
+              <div class="window lit"></div>
+              <div class="window"></div>
+              <div class="window lit"></div>
+              <div class="window"></div>
+              <div class="window lit"></div>
+              <div class="window"></div>
+            </div>
+            <div class="building-base"></div>
+          </div>
+        </div>
+        <!-- Explosion -->
+        <div id="explosion-layer" aria-hidden="true">💥</div>
+        <!-- Rockets fly in here -->
+        <div id="rockets-container" aria-hidden="true"></div>
+      </div>
+
+      <div id="result-content">
+        <div id="team-badge"></div>
+        <p id="result-message"></p>
+        <p id="wizard-message" class="hidden">🧙 Ai would never do that</p>
+        <button id="spin-again-btn" class="hidden">Spin Again 🎲</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>⚠️ This is a joke. No actual production environments were harmed. Probably.</p>
+  </footer>
+
+  <script>
+    /* ===================================================================
+       CONFIGURATION
+    =================================================================== */
+    const TEAMS = [
+      {
+        name: 'Voyagers',
+        color: '#ff6b6b',
+        darkColor: '#c94444',
+        textColor: '#fff',
+        message: 'Voyagers has entered the chat. 🛸',
+      },
+      {
+        name: 'Stable\nFusion',
+        displayName: 'Stable Fusion',
+        color: '#4ecdc4',
+        darkColor: '#2d9e97',
+        textColor: '#fff',
+        message: 'Stable Fusion, please stop touching prod. 🔥',
+      },
+      {
+        name: 'Wizards',
+        color: '#a78bfa',
+        darkColor: '#7c5db5',
+        textColor: '#fff',
+        message: 'Wizards has transcended the blame matrix. ✨',
+        isWizards: true,
+      },
+    ];
+
+    /* ===================================================================
+       STATE
+    =================================================================== */
+    let currentRotation = 0;   // degrees, cumulative (always increases)
+    let isSpinning      = false;
+    let firstSpinDone   = false;
+
+    /* ===================================================================
+       CANVAS SETUP
+    =================================================================== */
+    const canvas  = document.getElementById('wheel');
+    const ctx     = canvas.getContext('2d');
+    const CX      = canvas.width  / 2;   // 210
+    const CY      = canvas.height / 2;   // 210
+    const RADIUS  = CX - 12;             // 198
+    const NUM_SEG = TEAMS.length;        // 3
+    const SEG_RAD = (2 * Math.PI) / NUM_SEG;  // 120° in radians
+
+    /* ===================================================================
+       WHEEL DRAWING
+       Layout at rotation = 0:
+         Segment 0 (Voyagers)     center → TOP    (−90° = 270°)
+         Segment 1 (Stable Fusion) center → 30°
+         Segment 2 (Wizards)       center → 150°
+       So drawWheel(0) puts Voyagers at the pointer.
+    =================================================================== */
+    function drawWheel(rotationDeg) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.save();
+      ctx.translate(CX, CY);
+      ctx.rotate((rotationDeg * Math.PI) / 180);
+
+      TEAMS.forEach((team, i) => {
+        const centerAngle = -Math.PI / 2 + i * SEG_RAD;
+        const startAngle  = centerAngle - SEG_RAD / 2;
+        const endAngle    = centerAngle + SEG_RAD / 2;
+
+        /* --- Segment fill --- */
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, RADIUS, startAngle, endAngle);
+        ctx.closePath();
+
+        const grad = ctx.createRadialGradient(0, 0, 0, 0, 0, RADIUS);
+        grad.addColorStop(0,   team.color + '66');
+        grad.addColorStop(0.5, team.color);
+        grad.addColorStop(1,   team.darkColor);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        /* --- Segment border --- */
+        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+        ctx.lineWidth   = 2;
+        ctx.stroke();
+
+        /* --- Team label --- */
+        ctx.save();
+        ctx.rotate(centerAngle);
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+
+        const lines    = team.name.split('\n');
+        const fontSize = lines.length > 1 ? 15 : 17;
+        const textX    = RADIUS * 0.61;
+
+        ctx.font = `900 ${fontSize}px system-ui, sans-serif`;
+
+        // Drop shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.45)';
+        lines.forEach((line, li) => {
+          const yOff = lines.length > 1 ? (li - 0.5) * (fontSize + 5) : 0;
+          ctx.fillText(line, textX + 1, yOff + 1);
+        });
+
+        // Main text
+        ctx.fillStyle = team.textColor;
+        lines.forEach((line, li) => {
+          const yOff = lines.length > 1 ? (li - 0.5) * (fontSize + 5) : 0;
+          ctx.fillText(line, textX, yOff);
+        });
+
+        ctx.restore();
+      });
+
+      /* --- Divider spokes --- */
+      for (let i = 0; i < NUM_SEG; i++) {
+        const angle = -Math.PI / 2 - SEG_RAD / 2 + i * SEG_RAD;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(Math.cos(angle) * RADIUS, Math.sin(angle) * RADIUS);
+        ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+        ctx.lineWidth   = 3;
+        ctx.stroke();
+      }
+
+      /* --- Outer ring --- */
+      ctx.beginPath();
+      ctx.arc(0, 0, RADIUS, 0, 2 * Math.PI);
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth   = 5;
+      ctx.stroke();
+
+      /* --- Center hub --- */
+      ctx.beginPath();
+      ctx.arc(0, 0, 30, 0, 2 * Math.PI);
+      const hub = ctx.createRadialGradient(0, 0, 0, 0, 0, 30);
+      hub.addColorStop(0, 'rgba(255,255,255,0.18)');
+      hub.addColorStop(1, '#12122a');
+      ctx.fillStyle = hub;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth   = 2.5;
+      ctx.stroke();
+
+      /* Hub dot */
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, 2 * Math.PI);
+      ctx.fillStyle = 'rgba(255,255,255,0.6)';
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    /* ===================================================================
+       SELECTION LOGIC
+       Base rotations that bring each team to the top pointer:
+         Team 0 (Voyagers):      0°  (already at top when rotation=0)
+         Team 1 (Stable Fusion): 240°
+         Team 2 (Wizards):       120°
+       Derivation:
+         Team i center in wheel-local coords: −90° + i·120°
+         For center to reach top (−90°):  R = −90° − (−90° + i·120°) = −i·120°
+         In positive degrees: 0°, 240°, 120°
+    =================================================================== */
+    const BASE_ROT = [0, 240, 120];   // degrees per team index
+
+    function selectTeam() {
+      const eligible = firstSpinDone ? [0, 1] : [0, 1, 2];
+      return eligible[Math.floor(Math.random() * eligible.length)];
+    }
+
+    function getTargetRotation(teamIndex) {
+      // Add ±38° jitter (= 0.5 × 76) — stays well within the ±60° half-segment
+      // boundary, so the pointer still lands on the correct team slice.
+      const jitter   = (Math.random() - 0.5) * 76;
+      const targetMod = ((BASE_ROT[teamIndex] + jitter) % 360 + 360) % 360;
+
+      const currentMod = ((currentRotation % 360) + 360) % 360;
+      let   angDiff    = (targetMod - currentMod + 360) % 360;
+      if (angDiff < 60) angDiff += 360;  // guarantee forward motion
+
+      const extraSpins = (5 + Math.floor(Math.random() * 5)) * 360;
+      return currentRotation + angDiff + extraSpins;
+    }
+
+    /* ===================================================================
+       SPIN
+    =================================================================== */
+    function spin() {
+      if (isSpinning) return;
+
+      const teamIndex    = selectTeam();
+      const finalRotation = getTargetRotation(teamIndex);
+
+      isSpinning = true;
+      canvas.setAttribute('aria-disabled', 'true');
+
+      document.getElementById('result-section').classList.add('hidden');
+      document.getElementById('spin-hint').textContent = '🌀 The wheel of fate is deciding…';
+
+      animateSpin(currentRotation, finalRotation, teamIndex);
+    }
+
+    /* ===================================================================
+       ANIMATION
+    =================================================================== */
+    function easeOutQuint(t) {
+      return 1 - Math.pow(1 - t, 5);
+    }
+
+    function animateSpin(from, to, teamIndex) {
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const DURATION      = reducedMotion ? 350 : 4500;
+      const startTime     = performance.now();
+
+      function frame(now) {
+        const elapsed = now - startTime;
+        const t       = Math.min(elapsed / DURATION, 1);
+        const eased   = easeOutQuint(t);
+
+        currentRotation = from + (to - from) * eased;
+        drawWheel(currentRotation);
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          currentRotation = to;
+          drawWheel(currentRotation);
+          isSpinning = false;
+          firstSpinDone = true;
+          canvas.removeAttribute('aria-disabled');
+          document.getElementById('spin-hint').textContent =
+            'Click or press Space to spin again!';
+          showResult(teamIndex);
+        }
+      }
+
+      requestAnimationFrame(frame);
+    }
+
+    /* ===================================================================
+       RESULT DISPLAY
+    =================================================================== */
+    function showResult(teamIndex) {
+      const team        = TEAMS[teamIndex];
+      const displayName = team.displayName || team.name;
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      /* --- Reset stage --- */
+      const building      = document.getElementById('building');
+      const explosionLayer = document.getElementById('explosion-layer');
+      const rocketsCont   = document.getElementById('rockets-container');
+      const wizMsg        = document.getElementById('wizard-message');
+      const spinAgainBtn  = document.getElementById('spin-again-btn');
+
+      building.className = '';
+      building.style.cssText = '';
+      explosionLayer.className = '';
+      explosionLayer.style.display = 'none';
+      rocketsCont.innerHTML = '';
+      wizMsg.classList.add('hidden');
+      spinAgainBtn.classList.add('hidden');
+
+      /* --- Badge & message --- */
+      const badge = document.getElementById('team-badge');
+      badge.textContent   = displayName;
+      badge.style.background  = team.color;
+      badge.style.boxShadow   = `0 0 24px ${team.color}99, 0 4px 16px rgba(0,0,0,0.4)`;
+
+      document.getElementById('result-message').textContent = team.message;
+
+      /* --- Show section --- */
+      const resultSection = document.getElementById('result-section');
+      resultSection.classList.remove('hidden');
+
+      /* --- Trigger animations --- */
+      if (team.isWizards) {
+        /* Rockets launch and miss */
+        launchRockets(false, reducedMotion);
+        setTimeout(() => {
+          wizMsg.classList.remove('hidden');
+          spinAgainBtn.classList.remove('hidden');
+        }, reducedMotion ? 50 : 2800);
+      } else {
+        /* Rockets hit → shake → explode */
+        launchRockets(true, reducedMotion);
+        setTimeout(() => {
+          shakeAndExplode(reducedMotion, () => {
+            spinAgainBtn.classList.remove('hidden');
+          });
+        }, reducedMotion ? 50 : 1800);
+      }
+    }
+
+    /* ===================================================================
+       ROCKET ANIMATION
+    =================================================================== */
+    function launchRockets(hit, reducedMotion) {
+      const container = document.getElementById('rockets-container');
+      container.innerHTML = '';
+
+      const delays  = [0, 0.32, 0.64];
+      const yOffset = [-38, 0, 38];
+      const dur     = reducedMotion ? 0.4 : 1.3;
+
+      delays.forEach((delay, i) => {
+        const el = document.createElement('div');
+        el.className   = `rocket ${hit ? 'hit' : 'miss'}`;
+        el.textContent = '🚀';
+        el.style.setProperty('--delay',    `${delay}s`);
+        el.style.setProperty('--y-offset', `${yOffset[i]}px`);
+        el.style.setProperty('--duration', `${dur}s`);
+        el.style.animationDuration = `${dur}s`;
+        el.style.animationDelay    = `${delay}s`;
+        container.appendChild(el);
+      });
+    }
+
+    /* ===================================================================
+       SHAKE + EXPLODE
+    =================================================================== */
+    function shakeAndExplode(reducedMotion, onDone) {
+      const building     = document.getElementById('building');
+      const explosionLayer = document.getElementById('explosion-layer');
+
+      if (reducedMotion) {
+        onDone && onDone();
+        return;
+      }
+
+      building.classList.add('building-shaking');
+      const SHAKE_MS = 450 * 3 + 100;   // 3 iterations × 450ms + buffer
+
+      setTimeout(() => {
+        building.classList.remove('building-shaking');
+        building.classList.add('building-collapsing');
+
+        explosionLayer.style.display = 'block';
+        explosionLayer.classList.add('exploding');
+
+        setTimeout(() => {
+          onDone && onDone();
+          // Reset building so next spin looks right
+          setTimeout(() => {
+            building.classList.remove('building-collapsing');
+            building.style.cssText = '';
+            explosionLayer.classList.remove('exploding');
+            explosionLayer.style.display = 'none';
+          }, 1600);
+        }, 900);
+      }, SHAKE_MS);
+    }
+
+    /* ===================================================================
+       EVENT LISTENERS
+    =================================================================== */
+    canvas.addEventListener('click', spin);
+
+    canvas.addEventListener('keydown', (e) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        spin();
+      }
+    });
+
+    document.getElementById('spin-again-btn').addEventListener('click', spin);
+
+    /* ===================================================================
+       INITIALISE
+    =================================================================== */
+    drawWheel(0);
+  </script>
+</body>
+</html>
