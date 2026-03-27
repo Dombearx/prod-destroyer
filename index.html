@@ -85,7 +85,10 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 1rem;
+      padding: 2rem;
+      flex-shrink: 0;
     }
 
     #wheel-wrapper {
@@ -172,11 +175,14 @@
       display: none;
     }
 
-    /* ===== ANIMATION STAGE ===== */
-    #animation-stage {
+    /* ===== GAME AREA — shared background for building + wheel ===== */
+    #game-area {
       position: relative;
       width: 100%;
-      height: 500px;
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      min-height: 520px;
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid var(--border);
@@ -187,8 +193,8 @@
           #0a1808 100%);
     }
 
-    /* Stars in stage */
-    #animation-stage::before {
+    /* Stars across the whole area */
+    #game-area::before {
       content: '· · ✦ · ✦ · · ✦ · · ✦ ·';
       position: absolute;
       top: 10px;
@@ -201,8 +207,8 @@
       pointer-events: none;
     }
 
-    /* Ground */
-    #animation-stage::after {
+    /* Ground across the full width */
+    #game-area::after {
       content: '';
       position: absolute;
       bottom: 0;
@@ -211,6 +217,13 @@
       height: 28px;
       background: linear-gradient(to top, rgba(20,60,20,0.9), transparent);
       pointer-events: none;
+    }
+
+    /* ===== ANIMATION STAGE ===== */
+    #animation-stage {
+      position: relative;
+      flex: 1;
+      min-width: 0;
     }
 
     /* ===== BUILDING ===== */
@@ -463,8 +476,9 @@
     #building-wrapper[data-damage="5"] #building { filter: brightness(0.3) sepia(0.3); transform: rotate(-3deg) scaleX(0.97); }
 
     /* ===== RESPONSIVE ===== */
-    @media (max-width: 500px) {
+    @media (max-width: 600px) {
       #wheel-wrapper { width: 310px; height: 310px; }
+      #game-area { flex-direction: column; min-height: 0; }
       #animation-stage { height: 380px; }
     }
 
@@ -496,10 +510,12 @@
   </header>
 
   <main>
-    <!-- ANIMATION STAGE — always visible, building on the left, rockets from the right -->
-    <div id="animation-stage">
-      <!-- Building -->
-      <div id="building-wrapper">
+    <!-- GAME AREA — building on the left, wheel on the right, shared background -->
+    <div id="game-area">
+      <!-- ANIMATION STAGE — building and rockets -->
+      <div id="animation-stage">
+        <!-- Building -->
+        <div id="building-wrapper">
         <div id="building">
           <div class="building-sign">PROD</div>
           <div class="building-body">
@@ -590,6 +606,7 @@
       </div>
       <p id="spin-hint">Click the wheel or press Space to spin!</p>
     </section>
+    </div><!-- end #game-area -->
 
     <!-- RESULT — shown after spin -->
     <section
